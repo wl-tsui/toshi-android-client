@@ -37,12 +37,14 @@ import com.toshi.extensions.startActivity
 import com.toshi.model.local.Conversation
 import com.toshi.model.local.ConversationInfo
 import com.toshi.view.activity.ChatActivity
+import com.toshi.view.activity.ContactSearchActivity
 import com.toshi.view.activity.ConversationRequestActivity
 import com.toshi.view.activity.ConversationSetupActivity
 import com.toshi.view.adapter.CompoundAdapter
 import com.toshi.view.adapter.ConversationAdapter
 import com.toshi.view.adapter.ConversationsHeaderAdapter
 import com.toshi.view.adapter.ConversationRequestsAdapter
+import com.toshi.view.adapter.SearchHeaderAdapter
 import com.toshi.view.adapter.viewholder.ThreadViewHolder
 import com.toshi.view.fragment.DialogFragment.ConversationOptionsDialogFragment
 import com.toshi.viewModel.RecentViewModel
@@ -105,7 +107,10 @@ class RecentFragment : TopLevelFragment() {
     }
 
     private fun initCompoundAdapter() {
-        // TODO: Add sections for search at the top and invite at the bottom
+        // TODO: Add section for invite at the bottom
+        val searchHeaderAdapter = SearchHeaderAdapter(
+                { startActivity<ContactSearchActivity>()}
+        )
         conversationRequestsAdapter = ConversationRequestsAdapter(
                 { startActivity<ConversationRequestActivity>() }
         )
@@ -116,6 +121,7 @@ class RecentFragment : TopLevelFragment() {
         )
 
         compoundAdapter = CompoundAdapter(listOf(
+                searchHeaderAdapter,
                 conversationRequestsAdapter,
                 conversationsHeaderAdapter,
                 conversationAdapter

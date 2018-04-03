@@ -373,4 +373,5 @@
     <string name="invalid_url">Invalid url</string>
     <string name="value_with_space_at_end">%s\u0020</string>
     <string name="web_view_disabled">Not supported</string>
+    <string name="start_user_search">Search now</string>
 </resources>
