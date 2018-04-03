@@ -24,6 +24,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import com.toshi.R
 import com.toshi.extensions.addHorizontalLineDivider
+import com.toshi.extensions.isEmpty
 import com.toshi.extensions.startActivityAndFinish
 import com.toshi.model.local.Conversation
 import com.toshi.view.adapter.ConversationRequestAdapter
@@ -33,7 +34,7 @@ import kotlinx.android.synthetic.main.activity_conversation_request.*
 class ConversationRequestActivity : AppCompatActivity() {
 
     private lateinit var viewModel: ConversationRequestViewModel
-    private lateinit var requestsAdapter: ConversationRequestAdapter
+    private lateinit var requestAdapter: ConversationRequestAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +57,7 @@ class ConversationRequestActivity : AppCompatActivity() {
     private fun initClickListeners() = closeButton.setOnClickListener { finish() }
 
     private fun initRecyclerView() {
-        requestsAdapter = ConversationRequestAdapter(
+        requestAdapter = ConversationRequestAdapter(
                 onItemCLickListener = { startActivityAndFinish<ChatActivity> { putExtra(ChatActivity.EXTRA__THREAD_ID, it.threadId) } },
                 onAcceptClickListener = { viewModel.acceptConversation(it) },
                 onRejectClickListener = { viewModel.rejectConversation(it) }
@@ -64,7 +65,7 @@ class ConversationRequestActivity : AppCompatActivity() {
 
         requests.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = requestsAdapter
+            adapter = requestAdapter
             addHorizontalLineDivider()
         }
     }
@@ -74,19 +75,19 @@ class ConversationRequestActivity : AppCompatActivity() {
             conversationsAndUser -> conversationsAndUser?.let { handleConversations(it.first) }
         })
         viewModel.updatedConversation.observe(this, Observer {
-            updatedConversation -> updatedConversation?.let { requestsAdapter.addItem(it) }
+            updatedConversation -> updatedConversation?.let { requestAdapter.addConversation(it) }
         })
         viewModel.acceptConversation.observe(this, Observer {
-            acceptedConversation -> acceptedConversation?.let { requestsAdapter.removeItem(it); goToConversation(it) }
+            acceptedConversation -> acceptedConversation?.let { requestAdapter.remove(it); goToConversation(it) }
         })
         viewModel.rejectConversation.observe(this, Observer {
-            rejectedConversation -> rejectedConversation?.let { requestsAdapter.removeItem(it); finishIfEmpty() }
+            rejectedConversation -> rejectedConversation?.let { requestAdapter.remove(it); finishIfEmpty() }
         })
     }
 
     private fun handleConversations(conversations: List<Conversation>) {
         if (conversations.isEmpty()) finish()
-        requestsAdapter.setItemList(conversations)
+        requestAdapter.setConversations(conversations)
     }
 
     private fun getConversationsAndLocalUser() = viewModel.getUnacceptedConversationsAndLocalUser()
@@ -96,6 +97,6 @@ class ConversationRequestActivity : AppCompatActivity() {
     }
 
     private fun finishIfEmpty() {
-        if (requestsAdapter.itemCount == 0) finish()
+        if (requestAdapter.isEmpty()) finish()
     }
 }

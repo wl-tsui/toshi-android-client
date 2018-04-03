@@ -104,13 +104,14 @@ class RecentFragment : TopLevelFragment() {
     }
 
     private fun initCompoundAdapter() {
+        // TODO: Add sections for search at the top and invite at the bottom
+        conversationRequestsAdapter = ConversationRequestsAdapter(
+                { startActivity<ConversationRequestActivity>() }
+        )
+        val dividerAdapter = ConversationDividerAdapter()
         conversationAdapter = ConversationAdapter(
                 { conversation -> startActivity<ChatActivity> { putExtra(ChatActivity.EXTRA__THREAD_ID, conversation.threadId) }},
                 { conversation -> viewModel.showConversationOptionsDialog(conversation.threadId) }
-        )
-        val dividerAdapter = ConversationDividerAdapter()
-        conversationRequestsAdapter = ConversationRequestsAdapter(
-                { startActivity<ConversationRequestActivity>() }
         )
 
         compoundAdapter = CompoundAdapter(listOf(
