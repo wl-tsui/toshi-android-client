@@ -7,6 +7,8 @@ import com.toshi.R
 import com.toshi.view.adapter.viewholder.ThreadViewHolder
 import com.toshi.model.local.Conversation
 import com.toshi.util.keyboard.SOFAMessageFormatter
+import com.toshi.util.logging.LogUtil
+import com.toshi.view.BaseApplication
 
 class ConversationAdapter(
         private val onItemClickListener: (Conversation) -> Unit,
@@ -45,5 +47,16 @@ class ConversationAdapter(
         holder.setLatestMessage(formattedLatestMessage)
         holder.setOnItemClickListener(conversation, onItemClickListener)
         holder.setOnItemLongClickListener(conversation, onItemLongClickListener)
+    }
+
+    override fun deleteItem(item: Conversation) {
+        super.deleteItem(item)
+        BaseApplication
+                .get()
+                .sofaMessageManager
+                .deleteConversation(item)
+                .subscribe(
+                        { }
+                ) { _ -> LogUtil.w("Unable to delete conversation") }
     }
 }

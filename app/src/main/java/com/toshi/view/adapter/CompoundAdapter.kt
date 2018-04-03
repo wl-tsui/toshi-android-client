@@ -38,7 +38,15 @@ interface CompoundableAdapter {
      */
     fun setCompoundParent(parent: CompoundAdapter?)
 
+    /**
+     * Remove the item at the given adapter index, and put it into the undo stack.
+     */
+    fun removeItemAtWithUndo(adapterIndex: Int, parentView: RecyclerView)
 
+    /**
+     * Delete any items still in the undo stack permanently
+     */
+    fun doDelete()
 }
 
 /**
@@ -133,16 +141,24 @@ class CompoundAdapter(
         return sectionAdapter.compoundableCreateViewHolder(parent)
     }
 
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val sectionAdapter = sectionAdapterForCompoundIndex(position)
         val sectionIndex = indexOf(sectionAdapter) ?: return
 
         when (sectionIndex) {
             0 -> sectionAdapter.compoundableBindViewHolder(holder, position)
-            in (1..(itemCount - 1)) -> sectionAdapter.compoundableBindViewHolder(holder, sectionIndexOfItem(sectionAdapter, position))
+            in (1..(itemCount - 1)) -> sectionAdapter.compoundableBindViewHolder(holder, adapterIndexOfItem(sectionAdapter, position))
             else -> throw AssertionError("Section index $sectionIndex out of bounds for adapter with $itemCount sections")
         }
+    }
+
+    // SWIPE TO UNDO
+
+    fun removeItemAtWithUndo(compoundIndex: Int, parentView: RecyclerView) {
+        val adapter = sectionAdapterForCompoundIndex(compoundIndex)
+        val adapterIndex = adapterIndexOfItem(adapter, compoundIndex)
+
+        adapter.removeItemAtWithUndo(adapterIndex, parentView)
     }
 
     // NOTIFICATIONS FROM CHILD ADAPTERS
@@ -165,6 +181,11 @@ class CompoundAdapter(
         val startPosition = totalItemsBeforeSection(sectionIndex)
 
         notifyItemRangeChanged(startPosition, (startPosition + childAdapter.getCompoundableItemCount()))
+    }
+
+    fun scrollToPosition(childAdapter: CompoundableAdapter, adapterIndex: Int, parentView: RecyclerView) {
+        val positionToScrollTo = compoundIndexOfItem(childAdapter, adapterIndex)
+        parentView.scrollToPosition(positionToScrollTo)
     }
 
     // CHANGING THE LIST OF ADAPTERS
@@ -199,13 +220,12 @@ class CompoundAdapter(
         return previousItems + adapterIndex
     }
 
-    private fun sectionIndexOfItem(adapter: CompoundableAdapter, compoundIndex: Int): Int {
+    private fun adapterIndexOfItem(adapter: CompoundableAdapter, compoundIndex: Int): Int {
         val sectionIndex = adapters.indexOf(adapter)
         val previousItems = totalItemsBeforeSection(sectionIndex)
         return compoundIndex - previousItems
     }
 
-    // Add observers when data set changes
     private fun sectionAdapterForCompoundIndex(compoundIndex: Int): CompoundableAdapter {
         var previousCount = 0
         adapters.forEach { adapter ->
@@ -218,5 +238,11 @@ class CompoundAdapter(
 
         // If we've gotten here, we've gone through all the adapters and haven't found anything
         throw AssertionError("No adapter for position $compoundIndex")
+    }
+
+    fun doDelete() {
+        for (adapter in adapters) {
+            adapter.doDelete()
+        }
     }
 }

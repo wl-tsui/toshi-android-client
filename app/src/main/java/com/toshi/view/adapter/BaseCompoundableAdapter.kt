@@ -1,16 +1,55 @@
 package com.toshi.view.adapter
 
+import android.support.design.widget.Snackbar
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
+import android.widget.TextView
+import com.toshi.R
+import com.toshi.view.BaseApplication
 
 abstract class BaseCompoundableAdapter<VH: RecyclerView.ViewHolder, T>: RecyclerView.Adapter<VH>(), CompoundableAdapter {
     var parent: CompoundAdapter? = null
 
     private var items: List<T> = listOf()
+    private var itemsToRemove: MutableList<T> = mutableListOf()
+
+    // ABSTRACT OR NO-OP BY DEFAULT METHODS
+
+    open fun deleteItem(item: T) {
+        // No-op by default - override if you need to actually delete something persisted.
+    }
+
+    // COMPOUNDABLE ADAPTER OVERRIDES
+
+    override fun getItemCount(): Int {
+        return items.size
+    }
+
+    override fun getCompoundableItemCount(): Int {
+        return itemCount
+    }
+
+    override fun compoundableCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+        return onCreateViewHolder(parent, 0)
+    }
+
+    override fun removeItemAtWithUndo(adapterIndex: Int, parentView: RecyclerView) {
+        val item = items[adapterIndex]
+        removeItemWithUndo(item, parentView)
+    }
+
+    override fun doDelete() {
+        for (item in itemsToRemove) {
+            deleteItem(item)
+        }
+    }
 
     override fun setCompoundParent(parent: CompoundAdapter?) {
         this.parent = parent
     }
+
+    // INDEXING HELPERS
 
     fun itemAt(index: Int): T {
         return items[index]
@@ -23,6 +62,8 @@ abstract class BaseCompoundableAdapter<VH: RecyclerView.ViewHolder, T>: Recycler
 
         return itemAt(index)
     }
+
+    // UPDATING THE ITEM LIST OR ITS CONTENTS
 
     open fun setItemList(items: List<T>) {
         this.items = items
@@ -59,18 +100,45 @@ abstract class BaseCompoundableAdapter<VH: RecyclerView.ViewHolder, T>: Recycler
         notifyItemRemoved(removalIndex)
     }
 
-    // ADAPTER OVERRIDES
+    fun removeItemWithUndo(removedItem: T, parentView: RecyclerView) {
+        val removedIndex = this.items.indexOf(removedItem)
+        if (removedIndex < 0) {
+            // This is not in the list.
+            return
+        }
 
-    override fun getItemCount(): Int {
-        return items.size
+        val snackbar = generateSnackbar(parentView)
+        snackbar.setAction(
+                R.string.undo,
+                { _ -> handleUndo(removedIndex, removedItem, parentView) }
+        ).show()
+        removeItem(removedItem)
+        itemsToRemove.add(removedItem)
     }
 
-    override fun getCompoundableItemCount(): Int {
-        return itemCount
+    // UNDO! UNDO!
+
+    private fun handleUndo(adapterPosition: Int, removedItem: T, parentView: RecyclerView) {
+        // Put the item back into the list
+        insertItem(removedItem, adapterPosition)
+        itemsToRemove.remove(removedItem)
+
+        // Scroll to it with or without a parent.
+        if (parent != null) {
+            parent?.scrollToPosition(this, adapterPosition, parentView)
+        } else {
+            parentView.scrollToPosition(adapterPosition)
+        }
     }
 
-    override fun compoundableCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
-        return onCreateViewHolder(parent, 0)
-    }
+    private fun generateSnackbar(parentView: RecyclerView): Snackbar {
+        val snackbar = Snackbar
+                .make(parentView, R.string.conversation_deleted, Snackbar.LENGTH_LONG)
+                .setActionTextColor(ContextCompat.getColor(BaseApplication.get(), R.color.colorAccent))
 
+        val snackbarView = snackbar.view
+        val snackbarTextView = snackbarView.findViewById<TextView>(android.support.design.R.id.snackbar_text)
+        snackbarTextView.setTextColor(ContextCompat.getColor(BaseApplication.get(), R.color.textColorContrast))
+        return snackbar
+    }
 }
