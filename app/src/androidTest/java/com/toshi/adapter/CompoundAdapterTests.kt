@@ -150,4 +150,51 @@ class CompoundAdapterTests {
         assertEquals((initialCompoundSize - stringList.size), testCompoundAdapter.itemCount)
         assertNull(testCompoundAdapter.indexOf(stringAdapter))
     }
+
+    @Test
+    fun testAddingEmptyAdapterWorks() {
+        assertEquals(initialCompoundSize, testCompoundAdapter.itemCount)
+
+        val emptyIntAdapter = IntCompoundableAdapter(listOf())
+
+        testCompoundAdapter.insertAdapter(emptyIntAdapter,0)
+
+        // We haven't actually added any items, so this shouldn't change the count.
+        assertEquals(initialCompoundSize, testCompoundAdapter.itemCount)
+
+        assertEquals(0, testCompoundAdapter.indexOf(emptyIntAdapter))
+        assertEquals(1, testCompoundAdapter.indexOf(intAdapter))
+        assertEquals(2, testCompoundAdapter.indexOf(stringAdapter))
+
+
+        val recyclerView = RecyclerView(context())
+        recyclerView.adapter = testCompoundAdapter
+        recyclerView.layoutManager = LinearLayoutManager(context())
+
+        val shouldBeIntViewHolder = testCompoundAdapter.onCreateViewHolder(recyclerView, 0)
+        assertTrue(shouldBeIntViewHolder is IntViewHolder)
+
+        val shouldBeAnotherIntViewHolder = testCompoundAdapter.onCreateViewHolder(recyclerView, 1)
+        val shouldBeStringViewHolder = testCompoundAdapter.onCreateViewHolder(recyclerView, 2)
+
+        testCompoundAdapter.onBindViewHolder(shouldBeAnotherIntViewHolder,0)
+        val intView = shouldBeAnotherIntViewHolder as? IntViewHolder
+        if (intView == null) {
+            fail("Another int view holder not correct type!")
+            return
+        }
+
+        assertEquals("${intList.first()}", intView.textView.text)
+
+
+        testCompoundAdapter.onBindViewHolder(shouldBeStringViewHolder, intList.count())
+
+        val stringView = shouldBeStringViewHolder as? StringViewHolder
+        if (stringView == null) {
+            fail("Wrong type for string view holder!")
+            return
+        }
+
+        assertEquals(stringList.first(), stringView.textView.text)
+    }
 }
