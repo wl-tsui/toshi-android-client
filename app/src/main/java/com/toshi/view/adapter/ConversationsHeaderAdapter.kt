@@ -6,10 +6,18 @@ import android.view.ViewGroup
 import com.toshi.R
 import com.toshi.view.adapter.viewholder.ConversationDividerViewHolder
 
-class ConversationDividerAdapter: BaseCompoundableAdapter<ConversationDividerViewHolder, Int>() {
+class ConversationsHeaderAdapter: BaseCompoundableAdapter<ConversationDividerViewHolder, Int>() {
 
     init {
-        setItemList(listOf(1))
+        setVisibile(true)
+    }
+
+    fun setVisibile(visible: Boolean) {
+        if (visible) {
+            setItemList(listOf(1))
+        } else {
+            setItemList(listOf())
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConversationDividerViewHolder {

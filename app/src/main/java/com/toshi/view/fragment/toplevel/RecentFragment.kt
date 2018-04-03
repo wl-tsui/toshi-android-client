@@ -41,7 +41,7 @@ import com.toshi.view.activity.ConversationRequestActivity
 import com.toshi.view.activity.ConversationSetupActivity
 import com.toshi.view.adapter.CompoundAdapter
 import com.toshi.view.adapter.ConversationAdapter
-import com.toshi.view.adapter.ConversationDividerAdapter
+import com.toshi.view.adapter.ConversationsHeaderAdapter
 import com.toshi.view.adapter.ConversationRequestsAdapter
 import com.toshi.view.adapter.viewholder.ThreadViewHolder
 import com.toshi.view.fragment.DialogFragment.ConversationOptionsDialogFragment
@@ -64,6 +64,7 @@ class RecentFragment : TopLevelFragment() {
     private lateinit var compoundAdapter: CompoundAdapter
     private lateinit var conversationRequestsAdapter: ConversationRequestsAdapter
     private lateinit var conversationAdapter: ConversationAdapter
+    private lateinit var conversationsHeaderAdapter: ConversationsHeaderAdapter
 
     private var scrollPosition = 0
 
@@ -108,7 +109,7 @@ class RecentFragment : TopLevelFragment() {
         conversationRequestsAdapter = ConversationRequestsAdapter(
                 { startActivity<ConversationRequestActivity>() }
         )
-        val dividerAdapter = ConversationDividerAdapter()
+        conversationsHeaderAdapter = ConversationsHeaderAdapter()
         conversationAdapter = ConversationAdapter(
                 { conversation -> startActivity<ChatActivity> { putExtra(ChatActivity.EXTRA__THREAD_ID, conversation.threadId) }},
                 { conversation -> viewModel.showConversationOptionsDialog(conversation.threadId) }
@@ -116,7 +117,7 @@ class RecentFragment : TopLevelFragment() {
 
         compoundAdapter = CompoundAdapter(listOf(
                 conversationRequestsAdapter,
-                dividerAdapter,
+                conversationsHeaderAdapter,
                 conversationAdapter
         ))
 
@@ -197,6 +198,12 @@ class RecentFragment : TopLevelFragment() {
 
     private fun updateViewState() {
         updateEmptyState()
+        updateConversationHeader()
+    }
+
+    private fun updateConversationHeader() {
+        val acceptedConversationsExist = !conversationAdapter.isEmpty()
+        conversationsHeaderAdapter.setVisibile(acceptedConversationsExist)
     }
 
     private fun updateEmptyState() {
