@@ -50,11 +50,10 @@ class CompoundAdapterTests {
 
     @Test
     fun compoundAdapterHasCorrectTotalNumberOfItems() {
-        assertEquals(testCompoundAdapter.itemCount, initialCompoundSize)
+        assertEquals(initialCompoundSize, testCompoundAdapter.itemCount)
     }
     @Test
     fun compoundAdapterReturnsCorrectViewHolderForSectionIndex() {
-
         val recyclerView = RecyclerView(context())
         recyclerView.adapter = testCompoundAdapter
 
@@ -63,7 +62,7 @@ class CompoundAdapterTests {
             fail("Int section index was null")
             return
         }
-        assertEquals(indexOfIntAdapter, 0)
+        assertEquals(0, indexOfIntAdapter)
 
         val shouldBeAnIntViewHolder =  testCompoundAdapter.onCreateViewHolder(recyclerView, indexOfIntAdapter)
         assertTrue(shouldBeAnIntViewHolder is IntViewHolder)
@@ -73,7 +72,7 @@ class CompoundAdapterTests {
             fail("String section index was null")
             return
         }
-        assertEquals(indexOfStringAdapter, 1)
+        assertEquals(1, indexOfStringAdapter)
 
         val shouldBeAStringViewHolder = testCompoundAdapter.onCreateViewHolder(recyclerView, indexOfStringAdapter)
         assertTrue(shouldBeAStringViewHolder is StringViewHolder)
@@ -81,76 +80,74 @@ class CompoundAdapterTests {
 
     @Test
     fun compoundAdapterReturnsCorrectConfiguredViewForPosition() {
-        val compoundAdapter = testCompoundAdapter
-
         val recyclerView = RecyclerView(context())
-        recyclerView.adapter = compoundAdapter
+        recyclerView.adapter = testCompoundAdapter
         recyclerView.layoutManager = LinearLayoutManager(context())
 
-        val intSectionIndex = compoundAdapter.indexOf(intAdapter)
+        val intSectionIndex = testCompoundAdapter.indexOf(intAdapter)
         if (intSectionIndex == null) {
             fail("Section index was null")
             return
         }
-        val intViewHolder =  compoundAdapter.onCreateViewHolder(recyclerView, intSectionIndex)
-        compoundAdapter.onBindViewHolder(intViewHolder, intList.lastIndex)
+        val intViewHolder =  testCompoundAdapter.onCreateViewHolder(recyclerView, intSectionIndex)
+        testCompoundAdapter.onBindViewHolder(intViewHolder, intList.lastIndex)
 
         val intView = intViewHolder as? IntViewHolder
         if (intView == null) {
             fail("Int view not correct type!")
             return
         }
-        assertEquals(intView.textView.text, "${intList.last()}")
+        assertEquals("${intList.last()}", intView.textView.text)
 
-        val stringSectionIndex = compoundAdapter.indexOf(stringAdapter)
+        val stringSectionIndex = testCompoundAdapter.indexOf(stringAdapter)
         if (stringSectionIndex == null) {
             fail("String section index was null")
             return
         }
 
-        val stringViewHolder = compoundAdapter.onCreateViewHolder(recyclerView, stringSectionIndex)
+        val stringViewHolder = testCompoundAdapter.onCreateViewHolder(recyclerView, stringSectionIndex)
         val firstStringIndex = intList.size
-        compoundAdapter.onBindViewHolder(stringViewHolder, firstStringIndex)
+        testCompoundAdapter.onBindViewHolder(stringViewHolder, firstStringIndex)
 
         val stringView = stringViewHolder as? StringViewHolder
         if (stringView == null) {
-            fail("Couldn't get correct type to cehck for string view holder")
+            fail("Couldn't get correct type to check for string view holder")
             return
         }
-        assertEquals(stringView.textView.text, stringList.first())
+        assertEquals(stringList.first(), stringView.textView.text)
     }
 
     @Test
     fun addingAnotherAdapterUpdatesCount() {
-        assertEquals(testCompoundAdapter.itemCount, initialCompoundSize)
+        assertEquals(initialCompoundSize, testCompoundAdapter.itemCount)
 
         val anotherIntAdapter = IntCompoundableAdapter(intList)
         testCompoundAdapter.appendAdapter(anotherIntAdapter)
 
-        assertEquals(testCompoundAdapter.itemCount, (initialCompoundSize + intList.size))
+        assertEquals((initialCompoundSize + intList.size), testCompoundAdapter.itemCount)
         assertEquals(testCompoundAdapter.indexOf(anotherIntAdapter), 2)
     }
 
     @Test
     fun addingAnotherAdapterUpdatesCountAndIndex() {
-        assertEquals(testCompoundAdapter.itemCount, initialCompoundSize)
+        assertEquals(initialCompoundSize, testCompoundAdapter.itemCount)
 
         val anotherStringAdapter = StringCompoundableAdapter(stringList)
         testCompoundAdapter.insertAdapter(anotherStringAdapter, 0)
 
-        assertEquals(testCompoundAdapter.itemCount, (initialCompoundSize + stringList.size))
+        assertEquals((initialCompoundSize + stringList.size), testCompoundAdapter.itemCount)
 
-        assertEquals(testCompoundAdapter.indexOf(anotherStringAdapter), 0)
-        assertEquals(testCompoundAdapter.indexOf(stringAdapter), 2)
+        assertEquals(0, testCompoundAdapter.indexOf(anotherStringAdapter))
+        assertEquals(2, testCompoundAdapter.indexOf(stringAdapter))
     }
 
     @Test
     fun testRemovingAnAdapterUpdatesCountAndIndex() {
-        assertEquals(testCompoundAdapter.itemCount, initialCompoundSize)
+        assertEquals(initialCompoundSize, testCompoundAdapter.itemCount)
 
         testCompoundAdapter.removeAdapter(stringAdapter)
 
-        assertEquals(testCompoundAdapter.itemCount, (initialCompoundSize - stringList.size))
+        assertEquals((initialCompoundSize - stringList.size), testCompoundAdapter.itemCount)
         assertNull(testCompoundAdapter.indexOf(stringAdapter))
     }
 }
