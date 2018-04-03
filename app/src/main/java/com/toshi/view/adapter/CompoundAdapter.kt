@@ -1,7 +1,6 @@
 package com.toshi.view.adapter
 
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.ViewGroup
 
 
@@ -180,22 +179,18 @@ class CompoundAdapter(
     // FIGURING OUT WHERE WE ARE
 
     private fun totalItemsBeforeSection(sectionIndex: Int): Int {
-        if (sectionIndex < 0) {
-            throw AssertionError("No sections at negative indexes!")
-        }
-
         val sectionCount = adapters.size
-        if (sectionIndex >= sectionCount) {
-            throw AssertionError("Looking for section at $sectionIndex but there are only $sectionCount sections")
+
+        when (sectionIndex) {
+            in Int.MIN_VALUE..-1 -> throw AssertionError("No sections at negative indexes!")
+            0 ->  /* There wouldn't be any items before section 0 */ return 0
+            in 1..(sectionCount - 1) -> {
+                val previousAdapters = adapters.subList(0, sectionIndex)
+                return previousAdapters.fold(0, { acc, adapter -> acc + adapter.getCompoundableItemCount() })
+            }
         }
 
-        if (sectionIndex == 0) {
-            // There wouldn't be any items before section 0
-            return 0
-        } else {
-            val previousAdapters = adapters.subList(0, sectionIndex)
-            return previousAdapters.fold(0, { acc, adapter -> acc + adapter.getCompoundableItemCount() })
-        }
+        throw AssertionError("Looking for section at $sectionIndex but there are only $sectionCount sections")
     }
 
     private fun compoundIndexOfItem(adapter: CompoundableAdapter, adapterIndex: Int): Int {
