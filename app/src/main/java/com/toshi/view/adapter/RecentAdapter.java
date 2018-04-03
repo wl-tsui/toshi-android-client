@@ -40,6 +40,7 @@ import com.toshi.model.sofa.PaymentRequest;
 import com.toshi.model.sofa.SofaAdapters;
 import com.toshi.model.sofa.SofaMessage;
 import com.toshi.model.sofa.SofaType;
+import com.toshi.util.keyboard.*;
 import com.toshi.util.logging.LogUtil;
 import com.toshi.view.BaseApplication;
 import com.toshi.view.adapter.listeners.OnItemClickListener;
@@ -114,7 +115,7 @@ public class RecentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         } else if (viewType == CONVERSATION.getValue()) {
             final ThreadViewHolder viewHolder = (ThreadViewHolder) holder;
             final Conversation conversation = (Conversation) conversationItem;
-            final String formattedLatestMessage = formatLastMessage(conversation.getLatestMessage());
+            final String formattedLatestMessage = (new SOFAMessageFormatter()).formatMessage(conversation.getLatestMessage());
             viewHolder.setThread(conversation);
             viewHolder.setLatestMessage(formattedLatestMessage);
             viewHolder.setOnItemClickListener(conversation, this.onItemClickListener);
@@ -233,58 +234,6 @@ public class RecentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         };
     }
 
-    private String formatLastMessage(final SofaMessage sofaMessage) {
-        if (sofaMessage == null) return "";
-        final User localUser = getCurrentLocalUser();
-        final boolean sentByLocal = sofaMessage.isSentBy(localUser);
-
-        try {
-            switch (sofaMessage.getType()) {
-                case SofaType.PLAIN_TEXT: {
-                    final Message message = SofaAdapters.get().messageFrom(sofaMessage.getPayload());
-                    return message.toUserVisibleString(sentByLocal, sofaMessage.hasAttachment());
-                }
-                case SofaType.PAYMENT: {
-                    final Payment payment = SofaAdapters.get().paymentFrom(sofaMessage.getPayload());
-                    return payment.toUserVisibleString(sentByLocal, sofaMessage.getSendState());
-                }
-                case SofaType.PAYMENT_REQUEST: {
-                    final PaymentRequest request = SofaAdapters.get().txRequestFrom(sofaMessage.getPayload());
-                    return request.toUserVisibleString(sentByLocal, sofaMessage.getSendState());
-                }
-                case SofaType.LOCAL_STATUS_MESSAGE: {
-                    final LocalStatusMessage localStatusMessage =
-                            SofaAdapters.get().localStatusMessageRequestFrom(sofaMessage.getPayload());
-                    final User sender = localStatusMessage.getSender();
-                    final boolean isSenderLocalUser = (localUser != null && sender != null)
-                            && localUser.getToshiId().equals(sender.getToshiId());
-                    return localStatusMessage.loadString(isSenderLocalUser);
-                }
-                case SofaType.COMMAND_REQUEST:
-                case SofaType.INIT_REQUEST:
-                case SofaType.INIT:
-                case SofaType.TIMESTAMP:
-                case SofaType.UNKNOWN:
-                default:
-                    return "";
-            }
-        } catch (final IOException ex) {
-            LogUtil.w("Error parsing SofaMessage. " + ex);
-        }
-
-        return "";
-    }
-
-    private User getCurrentLocalUser() {
-        // Yes, this blocks. But realistically, a value should be always ready for returning.
-        return BaseApplication
-                .get()
-                .getUserManager()
-                .getCurrentUser()
-                .toBlocking()
-                .value();
-    }
-
     public void doDelete() {
         for (final Conversation conversationToDelete : conversationsToDelete) {
             BaseApplication
@@ -296,14 +245,6 @@ public class RecentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             t -> LogUtil.w("Unable to delete conversation")
                     );
         }
-    }
-
-    public boolean isAcceptedConversationsEmpty() {
-        return isConversationRequestsViewAdded() && this.conversations.size() == FIRST_CONVERSATION_POSITION;
-    }
-
-    public boolean isUnacceptedConversationsEmpty() {
-        return this.unacceptedConversations.isEmpty();
     }
 
     @Override

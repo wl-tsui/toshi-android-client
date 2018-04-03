@@ -22,13 +22,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.toshi.R
 import com.toshi.model.local.Conversation
-import com.toshi.model.local.User
-import com.toshi.model.sofa.SofaAdapters
-import com.toshi.model.sofa.SofaMessage
-import com.toshi.model.sofa.SofaType
-import com.toshi.util.logging.LogUtil
+import com.toshi.util.keyboard.SOFAMessageFormatter
 import com.toshi.view.adapter.viewholder.ConversationRequestViewHolder
-import java.io.IOException
 
 class ConversationRequestAdapter(
         private val onItemCLickListener: (Conversation) -> Unit,
@@ -36,14 +31,15 @@ class ConversationRequestAdapter(
         private val onRejectClickListener: (Conversation) -> Unit
 ) : BaseCompoundableAdapter<ConversationRequestViewHolder, Conversation>() {
 
+    private val messageFormatter: SOFAMessageFormatter by lazy { SOFAMessageFormatter() }
+
     // COMPOUNDABLE ADAPTER OVERRIDES
 
     override fun compoundableBindViewHolder(viewHolder: RecyclerView.ViewHolder, adapterIndex: Int) {
-        val typedHolder = viewHolder as? ConversationRequestViewHolder ?: throw AssertionError("This is not the right type!")
+        val typedHolder = viewHolder as? ConversationRequestViewHolder
+                ?: throw AssertionError("This is not the right type!")
         onBindViewHolder(typedHolder, adapterIndex)
     }
-
-    lateinit var localUser: User
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConversationRequestViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -51,42 +47,14 @@ class ConversationRequestAdapter(
     }
 
     override fun onBindViewHolder(holder: ConversationRequestViewHolder, position: Int) {
-        val conversation = safelyAt(position) ?: throw AssertionError("No conversation at index $position")
-        val formattedLatestMessage = conversation.latestMessage?.let { formatLastMessage(it) } ?: ""
+        val conversation = safelyAt(position)
+                ?: throw AssertionError("No conversation at index $position")
+        val formattedLatestMessage = conversation.latestMessage?.let { messageFormatter.formatMessage(it) } ?: ""
         holder
                 .setConversation(conversation)
                 .setLatestMessage(formattedLatestMessage)
                 .setOnItemClickListener(conversation, onItemCLickListener)
                 .setOnAcceptClickListener(conversation, onAcceptClickListener)
                 .setOnRejectClickListener(conversation, onRejectClickListener)
-    }
-
-    private fun formatLastMessage(sofaMessage: SofaMessage): String {
-        return try {
-            getMessage(sofaMessage)
-        } catch (ex: IOException) {
-            LogUtil.w("Error parsing SofaMessage. $ex")
-            ""
-        }
-    }
-
-    private fun getMessage(sofaMessage: SofaMessage): String {
-        val sentByLocal = sofaMessage.isSentBy(localUser)
-        return when (sofaMessage.type) {
-            SofaType.PLAIN_TEXT -> {
-                val message = SofaAdapters.get().messageFrom(sofaMessage.payload)
-                message.toUserVisibleString(sentByLocal, sofaMessage.hasAttachment())
-            }
-            SofaType.PAYMENT -> {
-                val payment = SofaAdapters.get().paymentFrom(sofaMessage.payload)
-                payment.toUserVisibleString(sentByLocal, sofaMessage.sendState)
-            }
-            SofaType.PAYMENT_REQUEST -> {
-                val request = SofaAdapters.get().txRequestFrom(sofaMessage.payload)
-                request.toUserVisibleString(sentByLocal, sofaMessage.sendState)
-            }
-            SofaType.COMMAND_REQUEST, SofaType.INIT_REQUEST, SofaType.INIT, SofaType.UNKNOWN -> return ""
-            else -> ""
-        }
     }
 }

@@ -26,7 +26,6 @@ import com.toshi.R
 import com.toshi.extensions.addHorizontalLineDivider
 import com.toshi.extensions.startActivityAndFinish
 import com.toshi.model.local.Conversation
-import com.toshi.model.local.User
 import com.toshi.view.adapter.ConversationRequestAdapter
 import com.toshi.viewModel.ConversationRequestViewModel
 import kotlinx.android.synthetic.main.activity_conversation_request.*
@@ -72,7 +71,7 @@ class ConversationRequestActivity : AppCompatActivity() {
 
     private fun initObservers() {
         viewModel.conversationsAndLocalUser.observe(this, Observer {
-            conversationsAndUser -> conversationsAndUser?.let { handleConversationsAndLocalUser(it.first, it.second) }
+            conversationsAndUser -> conversationsAndUser?.let { handleConversations(it.first) }
         })
         viewModel.updatedConversation.observe(this, Observer {
             updatedConversation -> updatedConversation?.let { requestsAdapter.addItem(it) }
@@ -85,9 +84,8 @@ class ConversationRequestActivity : AppCompatActivity() {
         })
     }
 
-    private fun handleConversationsAndLocalUser(conversations: List<Conversation>, localUser: User) {
+    private fun handleConversations(conversations: List<Conversation>) {
         if (conversations.isEmpty()) finish()
-        requestsAdapter.localUser = localUser
         requestsAdapter.setItemList(conversations)
     }
 
