@@ -100,6 +100,15 @@ abstract class BaseCompoundableAdapter<VH : RecyclerView.ViewHolder, T> : Recycl
         notifyItemRemoved(removalIndex)
     }
 
+    fun removeItemAtIndex(index: Int) {
+        if (!items.indices.contains(index)) {
+            return
+        }
+
+        val itemToRemove = items[index]
+        removeItem(itemToRemove)
+    }
+
     fun removeItemWithUndo(removedItem: T, parentView: RecyclerView) {
         val removedIndex = this.items.indexOf(removedItem)
         if (removedIndex < 0) {

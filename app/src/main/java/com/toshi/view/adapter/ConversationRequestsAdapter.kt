@@ -14,11 +14,20 @@ class ConversationRequestsAdapter(
     private var unacceptedConversations: List<Conversation>? = null
 
     fun setUnacceptedConversations(conversations: List<Conversation>) {
+        val priorUnaccepted = unacceptedConversations?.count() ?: 0
         unacceptedConversations = conversations
+
         if (conversations.count() > 0) {
             setItemList(listOf(conversations.count()))
         } else {
-            setItemList(listOf())
+            // Simply setting the empty list can cause a crash
+            if (priorUnaccepted > 0) {
+                // Something was set before, remove it
+                removeItemAtIndex(0)
+            } else {
+                // Nothing was set before, set up a new set of conversations.
+                setItemList(listOf())
+            }
         }
     }
 
