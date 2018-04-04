@@ -15,7 +15,11 @@ class ConversationRequestsAdapter(
 
     fun setUnacceptedConversations(conversations: List<Conversation>) {
         unacceptedConversations = conversations
-        setItemList(listOf(conversations.count()))
+        if (conversations.count() > 0) {
+            setItemList(listOf(conversations.count()))
+        } else {
+            setItemList(listOf())
+        }
     }
 
     fun removeConversation(conversation: Conversation) {
