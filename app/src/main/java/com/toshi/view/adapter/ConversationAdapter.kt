@@ -63,7 +63,6 @@ class ConversationAdapter(
     }
 
     override fun deleteItem(item: Conversation) {
-        super.deleteItem(item)
         BaseApplication
                 .get()
                 .sofaMessageManager
