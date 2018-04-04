@@ -139,7 +139,7 @@ class RecentFragment : TopLevelFragment() {
             conversation -> conversation?.let { handleAcceptedConversation(it) }
         })
         viewModel.updatedUnacceptedConversation.observe(this, Observer {
-            conversation -> conversation?.let { handleUnacceptedConversation(it) }
+            conversation -> conversation?.let { handleUpdatedUnacceptedConversation(it) }
         })
         viewModel.conversationInfo.observe(this, Observer {
             conversationInfo -> conversationInfo?.let { showConversationOptionsDialog(it) }
@@ -161,8 +161,8 @@ class RecentFragment : TopLevelFragment() {
         updateViewState()
     }
 
-    private fun handleUnacceptedConversation(updatedConversation: Conversation) {
-        conversationRequestsAdapter.removeConversation(updatedConversation)
+    private fun handleUpdatedUnacceptedConversation(updatedConversation: Conversation) {
+        conversationRequestsAdapter.addOrUpdateConversation(updatedConversation)
         updateViewState()
     }
 

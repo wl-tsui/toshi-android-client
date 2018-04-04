@@ -28,8 +28,29 @@ class ConversationRequestsAdapter(
                 return
             }
 
-            val mutableConversations = unaccepted.toMutableList()
-            mutableConversations.remove(conversation)
+            mutateConversations { it.remove(conversation) }
+        }
+    }
+
+    fun addOrUpdateConversation(conversation: Conversation) {
+        unacceptedConversations?.let { updated ->
+            val existing = updated.firstOrNull { current -> current.threadId == conversation.threadId }
+            if (existing != null) {
+                mutateConversations { mutableConversations ->
+                    val index = mutableConversations.indexOf(existing)
+                    mutableConversations.removeAt(index)
+                    mutableConversations.add(index, conversation)
+                }
+            } else {
+                mutateConversations { it.add(conversation) }
+            }
+        }
+    }
+
+    private fun mutateConversations(action: (MutableList<Conversation>) -> Unit)  {
+        unacceptedConversations?.let {
+            val mutableConversations = it.toMutableList()
+            action(mutableConversations)
             setUnacceptedConversations(mutableConversations.toList())
         }
     }
