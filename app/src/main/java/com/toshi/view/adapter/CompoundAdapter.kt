@@ -145,8 +145,8 @@ class CompoundAdapter(
 
         when (sectionIndex) {
             0 -> sectionAdapter.compoundableBindViewHolder(holder, position)
-            in (1..(itemCount - 1)) -> sectionAdapter.compoundableBindViewHolder(holder, adapterIndexOfItem(sectionAdapter, position))
-            else -> throw AssertionError("Section index $sectionIndex out of bounds for adapter with $itemCount sections")
+            in (1..(adapters.count() - 1)) -> sectionAdapter.compoundableBindViewHolder(holder, adapterIndexOfItem(sectionAdapter, position))
+            else -> throw AssertionError("Section index $sectionIndex out of bounds for adapter with ${adapters.count()} sections")
         }
     }
 
@@ -166,7 +166,7 @@ class CompoundAdapter(
     }
 
     fun notifyItemRemoved(childAdapter: CompoundableAdapter, adapterIndex: Int) {
-        notifyItemChanged(compoundIndexOfItem(childAdapter, adapterIndex))
+        notifyItemRemoved(compoundIndexOfItem(childAdapter, adapterIndex))
     }
 
     fun notifyItemInserted(childAdapter: CompoundableAdapter, adapterIndex: Int) {
@@ -174,10 +174,7 @@ class CompoundAdapter(
     }
 
     fun notifyDataSetChanged(childAdapter: CompoundableAdapter) {
-        val sectionIndex = indexOf(childAdapter) ?: return
-        val startPosition = totalItemsBeforeSection(sectionIndex)
-
-        notifyItemRangeChanged(startPosition, (startPosition + childAdapter.getCompoundableItemCount()))
+        notifyDataSetChanged()
     }
 
     fun scrollToPosition(childAdapter: CompoundableAdapter, adapterIndex: Int, parentView: RecyclerView) {
