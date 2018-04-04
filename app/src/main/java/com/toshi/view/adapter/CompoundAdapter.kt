@@ -91,10 +91,10 @@ class CompoundAdapter(
      * @return The index of the adapter in the list of adapters, or null if the adapter is not in the current list.
      */
     fun indexOf(adapter: CompoundableAdapter): Int? {
-        if (adapters.contains(adapter)) {
-            return adapters.indexOf(adapter)
+        return if (adapters.contains(adapter)) {
+            adapters.indexOf(adapter)
         } else {
-            return null
+            null
         }
     }
 
@@ -190,7 +190,7 @@ class CompoundAdapter(
         val positionToScrollTo = compoundIndexOfItem(childAdapter, adapterIndex)
         parentView.scrollToPosition(positionToScrollTo)
     }
-    
+
     private fun mutateAdapters(action: (MutableList<CompoundableAdapter>) -> Unit) {
         val mutableCopy = adapters.toMutableList()
         action(mutableCopy)
