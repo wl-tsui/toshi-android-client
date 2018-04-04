@@ -2,7 +2,6 @@ package com.toshi.view.adapter
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import com.toshi.R
 import com.toshi.view.adapter.viewholder.SearchHeaderViewHolder
