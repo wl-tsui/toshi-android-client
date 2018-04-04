@@ -7,10 +7,9 @@ import com.toshi.R
 import com.toshi.model.local.Conversation
 import com.toshi.view.adapter.viewholder.ConversationRequestsViewHolder
 
-
 class ConversationRequestsAdapter(
         private val onRequestsClickListener: () -> Unit
-): BaseCompoundableAdapter<ConversationRequestsViewHolder, Int>() {
+) : BaseCompoundableAdapter<ConversationRequestsViewHolder, Int>() {
 
     private var unacceptedConversations: List<Conversation>? = null
 
@@ -32,7 +31,7 @@ class ConversationRequestsAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConversationRequestsViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.list_item__conversation_requests, parent, false);
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.list_item__conversation_requests, parent, false)
         return ConversationRequestsViewHolder(itemView)
     }
 

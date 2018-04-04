@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.toshi.view.adapter.BaseCompoundableAdapter
 
-class StringViewHolder(val view: ViewGroup): RecyclerView.ViewHolder(view) {
+class StringViewHolder(val view: ViewGroup) : RecyclerView.ViewHolder(view) {
 
     val textView: TextView by lazy {
         val textView = TextView(view.context)
@@ -18,7 +18,7 @@ class StringViewHolder(val view: ViewGroup): RecyclerView.ViewHolder(view) {
     }
 }
 
-class StringCompoundableAdapter(strings: List<String>): BaseCompoundableAdapter<StringViewHolder, String>() {
+class StringCompoundableAdapter(strings: List<String>) : BaseCompoundableAdapter<StringViewHolder, String>() {
 
     init {
         setItemList(strings)

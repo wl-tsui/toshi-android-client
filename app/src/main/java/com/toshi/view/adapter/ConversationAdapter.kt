@@ -13,7 +13,7 @@ import com.toshi.view.BaseApplication
 class ConversationAdapter(
         private val onItemClickListener: (Conversation) -> Unit,
         private val onItemLongClickListener: (Conversation) -> Unit
-    ): BaseCompoundableAdapter<ThreadViewHolder, Conversation>() {
+    ) : BaseCompoundableAdapter<ThreadViewHolder, Conversation>() {
 
     private val messageFormatter: SOFAMessageFormatter by lazy { SOFAMessageFormatter() }
 

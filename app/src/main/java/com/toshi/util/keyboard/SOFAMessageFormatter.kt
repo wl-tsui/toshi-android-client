@@ -62,7 +62,6 @@ class SOFAMessageFormatter() {
             }
         } catch (ex: IOException) {
             LogUtil.w("Error parsing SofaMessage. $ex")
-
         }
 
         return ""

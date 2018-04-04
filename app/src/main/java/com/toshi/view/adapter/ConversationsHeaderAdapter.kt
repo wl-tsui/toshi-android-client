@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import com.toshi.R
 import com.toshi.view.adapter.viewholder.ConversationDividerViewHolder
 
-class ConversationsHeaderAdapter: BaseCompoundableAdapter<ConversationDividerViewHolder, Int>() {
+class ConversationsHeaderAdapter : BaseCompoundableAdapter<ConversationDividerViewHolder, Int>() {
 
     init {
         setVisibile(true)

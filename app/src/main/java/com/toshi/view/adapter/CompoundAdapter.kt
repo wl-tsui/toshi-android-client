@@ -3,7 +3,6 @@ package com.toshi.view.adapter
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 
-
 /**
 An interface which allows us to avoid generic hell but still combine different types
  */
@@ -60,14 +59,13 @@ TERMINOLOGY:
 */
 class CompoundAdapter(
         private var adapters: List<CompoundableAdapter>
-): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     init {
         for (adapter in adapters) {
             adapter.setCompoundParent(this)
         }
     }
-
 
     // PUBLIC API
 
@@ -167,7 +165,6 @@ class CompoundAdapter(
         notifyItemChanged(compoundIndexOfItem(childAdapter, adapterIndex))
     }
 
-
     fun notifyItemRemoved(childAdapter: CompoundableAdapter, adapterIndex: Int) {
         notifyItemChanged(compoundIndexOfItem(childAdapter, adapterIndex))
     }
@@ -204,7 +201,7 @@ class CompoundAdapter(
 
         when (sectionIndex) {
             in Int.MIN_VALUE..-1 -> throw AssertionError("No sections at negative indexes!")
-            0 ->  /* There wouldn't be any items before section 0 */ return 0
+            0 -> /* There wouldn't be any items before section 0 */ return 0
             in 1..(sectionCount - 1) -> {
                 val previousAdapters = adapters.subList(0, sectionIndex)
                 return previousAdapters.fold(0, { acc, adapter -> acc + adapter.getCompoundableItemCount() })

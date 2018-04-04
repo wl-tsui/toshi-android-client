@@ -111,7 +111,7 @@ class RecentFragment : TopLevelFragment() {
         )
         conversationsHeaderAdapter = ConversationsHeaderAdapter()
         conversationAdapter = ConversationAdapter(
-                { conversation -> startActivity<ChatActivity> { putExtra(ChatActivity.EXTRA__THREAD_ID, conversation.threadId) }},
+                { conversation -> startActivity<ChatActivity> { putExtra(ChatActivity.EXTRA__THREAD_ID, conversation.threadId) } },
                 { conversation -> viewModel.showConversationOptionsDialog(conversation.threadId) }
         )
 
@@ -122,7 +122,7 @@ class RecentFragment : TopLevelFragment() {
         ))
 
         recents.apply {
-            layoutManager =  LinearLayoutManager(context)
+            layoutManager = LinearLayoutManager(context)
             itemAnimator = DefaultItemAnimator()
             adapter = compoundAdapter
         }

@@ -74,6 +74,5 @@ class ConversationRequestAdapter(
                 .setOnRejectClickListener(conversation, onRejectClickListener)
     }
 
-
     override fun getItemCount() = conversations.size
 }

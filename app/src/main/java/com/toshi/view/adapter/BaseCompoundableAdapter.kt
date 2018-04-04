@@ -8,7 +8,7 @@ import android.widget.TextView
 import com.toshi.R
 import com.toshi.view.BaseApplication
 
-abstract class BaseCompoundableAdapter<VH: RecyclerView.ViewHolder, T>: RecyclerView.Adapter<VH>(), CompoundableAdapter {
+abstract class BaseCompoundableAdapter<VH : RecyclerView.ViewHolder, T> : RecyclerView.Adapter<VH>(), CompoundableAdapter {
     var parent: CompoundAdapter? = null
 
     private var items: List<T> = listOf()
