@@ -19,6 +19,7 @@ package com.toshi.view.fragment.toplevel
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
@@ -33,6 +34,7 @@ import com.toshi.R
 import com.toshi.extensions.getColorById
 import com.toshi.extensions.isEmpty
 import com.toshi.extensions.startActivity
+import com.toshi.extensions.startExternalActivity
 import com.toshi.model.local.Conversation
 import com.toshi.model.local.ConversationInfo
 import com.toshi.view.activity.ChatActivity
@@ -43,6 +45,7 @@ import com.toshi.view.adapter.CompoundAdapter
 import com.toshi.view.adapter.ConversationAdapter
 import com.toshi.view.adapter.ConversationsHeaderAdapter
 import com.toshi.view.adapter.ConversationRequestsAdapter
+import com.toshi.view.adapter.InviteFriendAdapter
 import com.toshi.view.adapter.SearchHeaderAdapter
 import com.toshi.view.adapter.viewholder.ThreadViewHolder
 import com.toshi.view.fragment.DialogFragment.ConversationOptionsDialogFragment
@@ -103,7 +106,6 @@ class RecentFragment : TopLevelFragment() {
     }
 
     private fun initCompoundAdapter() {
-        // TODO: Add section for invite at the bottom
         val searchHeaderAdapter = SearchHeaderAdapter(
                 { startActivity<ContactSearchActivity>()}
         )
@@ -115,12 +117,16 @@ class RecentFragment : TopLevelFragment() {
                 { conversation -> startActivity<ChatActivity> { putExtra(ChatActivity.EXTRA__THREAD_ID, conversation.threadId) } },
                 { conversation -> viewModel.showConversationOptionsDialog(conversation.threadId) }
         )
+        val inviteAdapter = InviteFriendAdapter(
+                { handleInviteFriends() }
+        )
 
         compoundAdapter = CompoundAdapter(listOf(
                 searchHeaderAdapter,
                 conversationRequestsAdapter,
                 conversationsHeaderAdapter,
-                conversationAdapter
+                conversationAdapter,
+                inviteAdapter
         ))
 
         recents.apply {
@@ -166,6 +172,12 @@ class RecentFragment : TopLevelFragment() {
     private fun handleUpdatedUnacceptedConversation(updatedConversation: Conversation) {
         conversationRequestsAdapter.addOrUpdateConversation(updatedConversation)
         updateViewState()
+    }
+
+    private fun handleInviteFriends() = startExternalActivity {
+        action = Intent.ACTION_SEND
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, getString(R.string.invite_friends_intent_message))
     }
 
     private fun showConversationOptionsDialog(conversationInfo: ConversationInfo) {
