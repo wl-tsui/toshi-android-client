@@ -224,7 +224,7 @@ class CompoundAdapter(
 
         throw AssertionError("Looking for section at $sectionIndex but there are only $sectionCount sections")
     }
-    
+
     private fun sectionAdapterForCompoundIndex(compoundIndex: Int): CompoundableAdapter {
         var previousCount = 0
         adapters.forEach { adapter ->

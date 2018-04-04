@@ -35,13 +35,9 @@ abstract class BaseCompoundableAdapter<VH : RecyclerView.ViewHolder, T> : Recycl
         // No-op by default - override if you need to actually delete something persisted.
     }
 
-    override fun getItemCount(): Int {
-        return items.size
-    }
+    override fun getItemCount(): Int = items.size
 
-    override fun getCompoundableItemCount(): Int {
-        return itemCount
-    }
+    override fun getCompoundableItemCount(): Int = itemCount
 
     override fun compoundableCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         return onCreateViewHolder(parent, 0)
@@ -62,9 +58,7 @@ abstract class BaseCompoundableAdapter<VH : RecyclerView.ViewHolder, T> : Recycl
         this.parent = parent
     }
 
-    fun itemAt(index: Int): T {
-        return items[index]
-    }
+    fun itemAt(index: Int): T = items[index]
 
     fun safelyAt(index: Int): T? {
         if (!items.indices.contains(index)) {
