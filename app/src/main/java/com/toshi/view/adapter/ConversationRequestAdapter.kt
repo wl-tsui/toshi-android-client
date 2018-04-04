@@ -37,7 +37,7 @@ class ConversationRequestAdapter(
     fun setConversations(conversations: List<Conversation>) {
         this.conversations.clear()
         this.conversations.addAll(conversations)
-        this.notifyDataSetChanged()
+        notifyDataSetChanged()
     }
 
     fun addConversation(conversation: Conversation) {
