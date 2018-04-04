@@ -56,7 +56,7 @@ class ConversationRequestsAdapter(
         }
     }
 
-    private fun mutateConversations(action: (MutableList<Conversation>) -> Unit)  {
+    private fun mutateConversations(action: (MutableList<Conversation>) -> Unit) {
         unacceptedConversations?.let {
             val mutableConversations = it.toMutableList()
             action(mutableConversations)
