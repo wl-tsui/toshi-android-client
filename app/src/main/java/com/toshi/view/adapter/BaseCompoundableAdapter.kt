@@ -122,7 +122,7 @@ abstract class BaseCompoundableAdapter<VH : RecyclerView.ViewHolder, T> : Recycl
         val snackbar = generateSnackbar(parentView)
         snackbar.setAction(
                 R.string.undo,
-                { _ -> handleUndo(removedIndex, removedItem, parentView) }
+                { handleUndo(removedIndex, removedItem, parentView) }
         ).show()
         removeItem(removedItem)
         itemsToRemove.add(removedItem)
