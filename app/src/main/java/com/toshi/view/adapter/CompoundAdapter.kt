@@ -84,8 +84,6 @@ class CompoundAdapter(
         }
     }
 
-    // PUBLIC API
-
     /**
      * Determines if an adapter is in the list of adapters, and if so, where it is
      *
@@ -138,8 +136,6 @@ class CompoundAdapter(
         mutateAdapters { it.remove(adapter) }
     }
 
-    // ADAPTER METHOD OVERRIDES
-
     override fun getItemCount(): Int {
         return adapters.fold(0, { acc, adapter -> acc + adapter.getCompoundableItemCount() })
     }
@@ -167,16 +163,12 @@ class CompoundAdapter(
         }
     }
 
-    // SWIPE TO UNDO
-
     fun removeItemAtWithUndo(compoundIndex: Int, parentView: RecyclerView) {
         val adapter = sectionAdapterForCompoundIndex(compoundIndex)
         val adapterIndex = adapterIndexOfItem(adapter, compoundIndex)
 
         adapter.removeItemAtWithUndo(adapterIndex, parentView)
     }
-
-    // NOTIFICATIONS FROM CHILD ADAPTERS
 
     fun notifiyItemChanged(childAdapter: CompoundableAdapter, adapterIndex: Int) {
         notifyItemChanged(compoundIndexOfItem(childAdapter, adapterIndex))
@@ -198,17 +190,13 @@ class CompoundAdapter(
         val positionToScrollTo = compoundIndexOfItem(childAdapter, adapterIndex)
         parentView.scrollToPosition(positionToScrollTo)
     }
-
-    // CHANGING THE LIST OF ADAPTERS
-
+    
     private fun mutateAdapters(action: (MutableList<CompoundableAdapter>) -> Unit) {
         val mutableCopy = adapters.toMutableList()
         action(mutableCopy)
         adapters = mutableCopy
         notifyDataSetChanged()
     }
-
-    // FIGURING OUT WHERE WE ARE
 
     private fun totalItemsBeforeSection(sectionIndex: Int): Int {
         val sectionCount = adapters.size

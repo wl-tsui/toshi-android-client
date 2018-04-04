@@ -34,8 +34,6 @@ class ConversationAdapter(
 
     private val messageFormatter: SOFAMessageFormatter by lazy { SOFAMessageFormatter() }
 
-    // COMPOUNDABLE ADAPTER OVERRIDES
-
     override fun compoundableBindViewHolder(viewHolder: RecyclerView.ViewHolder, adapterIndex: Int) {
         val typedHolder = viewHolder as? ThreadViewHolder
                 ?: throw AssertionError("This is not the right type!")
@@ -46,8 +44,6 @@ class ConversationAdapter(
         // Don't show conversations with invalid recipients.
         super.setItemList(items.filter { !it.isRecipientInvalid })
     }
-
-    // MAIN CLASS STUFF
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ThreadViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.list_item__recent, parent, false)

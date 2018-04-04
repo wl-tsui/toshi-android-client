@@ -31,13 +31,9 @@ abstract class BaseCompoundableAdapter<VH : RecyclerView.ViewHolder, T> : Recycl
     private var items: List<T> = listOf()
     private var itemsToRemove: MutableList<T> = mutableListOf()
 
-    // ABSTRACT OR NO-OP BY DEFAULT METHODS
-
     open fun deleteItem(item: T) {
         // No-op by default - override if you need to actually delete something persisted.
     }
-
-    // COMPOUNDABLE ADAPTER OVERRIDES
 
     override fun getItemCount(): Int {
         return items.size
@@ -66,8 +62,6 @@ abstract class BaseCompoundableAdapter<VH : RecyclerView.ViewHolder, T> : Recycl
         this.parent = parent
     }
 
-    // INDEXING HELPERS
-
     fun itemAt(index: Int): T {
         return items[index]
     }
@@ -79,8 +73,6 @@ abstract class BaseCompoundableAdapter<VH : RecyclerView.ViewHolder, T> : Recycl
 
         return itemAt(index)
     }
-
-    // UPDATING THE ITEM LIST OR ITS CONTENTS
 
     open fun setItemList(items: List<T>) {
         this.items = items
@@ -141,8 +133,6 @@ abstract class BaseCompoundableAdapter<VH : RecyclerView.ViewHolder, T> : Recycl
         removeItem(removedItem)
         itemsToRemove.add(removedItem)
     }
-
-    // UNDO! UNDO!
 
     private fun handleUndo(adapterPosition: Int, removedItem: T, parentView: RecyclerView) {
         // Put the item back into the list
