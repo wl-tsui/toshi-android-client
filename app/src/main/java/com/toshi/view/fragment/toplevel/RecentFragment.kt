@@ -32,7 +32,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.toshi.R
 import com.toshi.extensions.getColorById
-import com.toshi.extensions.isEmpty
 import com.toshi.extensions.startActivity
 import com.toshi.extensions.startExternalActivity
 import com.toshi.model.local.Conversation
@@ -43,7 +42,6 @@ import com.toshi.view.activity.ConversationRequestActivity
 import com.toshi.view.activity.ConversationSetupActivity
 import com.toshi.view.adapter.CompoundAdapter
 import com.toshi.view.adapter.ConversationAdapter
-import com.toshi.view.adapter.ConversationsHeaderAdapter
 import com.toshi.view.adapter.ConversationRequestsAdapter
 import com.toshi.view.adapter.InviteFriendAdapter
 import com.toshi.view.adapter.SearchHeaderAdapter
@@ -66,7 +64,6 @@ class RecentFragment : TopLevelFragment() {
     private lateinit var compoundAdapter: CompoundAdapter
     private lateinit var conversationRequestsAdapter: ConversationRequestsAdapter
     private lateinit var conversationAdapter: ConversationAdapter
-    private lateinit var conversationsHeaderAdapter: ConversationsHeaderAdapter
 
     private var scrollPosition = 0
 
@@ -112,7 +109,6 @@ class RecentFragment : TopLevelFragment() {
         conversationRequestsAdapter = ConversationRequestsAdapter(
                 { startActivity<ConversationRequestActivity>() }
         )
-        conversationsHeaderAdapter = ConversationsHeaderAdapter()
         conversationAdapter = ConversationAdapter(
                 { conversation -> startActivity<ChatActivity> { putExtra(ChatActivity.EXTRA__THREAD_ID, conversation.threadId) } },
                 { conversation -> viewModel.showConversationOptionsDialog(conversation.threadId) }
@@ -124,7 +120,6 @@ class RecentFragment : TopLevelFragment() {
         compoundAdapter = CompoundAdapter(listOf(
                 searchHeaderAdapter,
                 conversationRequestsAdapter,
-                conversationsHeaderAdapter,
                 conversationAdapter,
                 inviteAdapter
         ))
@@ -160,18 +155,15 @@ class RecentFragment : TopLevelFragment() {
     private fun handleConversations(acceptedConversations: List<Conversation>, unacceptedConversation: List<Conversation>) {
         conversationRequestsAdapter.setUnacceptedConversations(unacceptedConversation)
         conversationAdapter.setItemList(acceptedConversations)
-        updateViewState()
     }
 
     private fun handleAcceptedConversation(updatedConversation: Conversation) {
         conversationRequestsAdapter.removeConversation(updatedConversation)
         conversationAdapter.addItem(updatedConversation)
-        updateViewState()
     }
 
     private fun handleUpdatedUnacceptedConversation(updatedConversation: Conversation) {
         conversationRequestsAdapter.addOrUpdateConversation(updatedConversation)
-        updateViewState()
     }
 
     private fun handleInviteFriends() = startExternalActivity {
@@ -188,7 +180,6 @@ class RecentFragment : TopLevelFragment() {
 
     private fun removeItemWithUndo(conversation: Conversation) {
         conversationAdapter.removeItemWithUndo(conversation, recents)
-        updateViewState()
     }
 
     private fun addSwipeToDeleteListener(recyclerView: RecyclerView) {
@@ -207,15 +198,6 @@ class RecentFragment : TopLevelFragment() {
             }
         })
         itemTouchHelper.attachToRecyclerView(recyclerView)
-    }
-
-    private fun updateViewState() {
-        updateConversationHeader()
-    }
-
-    private fun updateConversationHeader() {
-        val acceptedConversationsExist = !conversationAdapter.isEmpty()
-        conversationsHeaderAdapter.setVisibile(acceptedConversationsExist)
     }
 
     override fun onStart() {
