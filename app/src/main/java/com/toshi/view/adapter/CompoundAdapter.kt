@@ -198,6 +198,18 @@ class CompoundAdapter(
         notifyDataSetChanged()
     }
 
+    private fun compoundIndexOfItem(adapter: CompoundableAdapter, adapterIndex: Int): Int {
+        val sectionIndex = adapters.indexOf(adapter)
+        val previousItems = totalItemsBeforeSection(sectionIndex)
+        return previousItems + adapterIndex
+    }
+
+    private fun adapterIndexOfItem(adapter: CompoundableAdapter, compoundIndex: Int): Int {
+        val sectionIndex = adapters.indexOf(adapter)
+        val previousItems = totalItemsBeforeSection(sectionIndex)
+        return compoundIndex - previousItems
+    }
+
     private fun totalItemsBeforeSection(sectionIndex: Int): Int {
         val sectionCount = adapters.size
 
@@ -212,19 +224,7 @@ class CompoundAdapter(
 
         throw AssertionError("Looking for section at $sectionIndex but there are only $sectionCount sections")
     }
-
-    private fun compoundIndexOfItem(adapter: CompoundableAdapter, adapterIndex: Int): Int {
-        val sectionIndex = adapters.indexOf(adapter)
-        val previousItems = totalItemsBeforeSection(sectionIndex)
-        return previousItems + adapterIndex
-    }
-
-    private fun adapterIndexOfItem(adapter: CompoundableAdapter, compoundIndex: Int): Int {
-        val sectionIndex = adapters.indexOf(adapter)
-        val previousItems = totalItemsBeforeSection(sectionIndex)
-        return compoundIndex - previousItems
-    }
-
+    
     private fun sectionAdapterForCompoundIndex(compoundIndex: Int): CompoundableAdapter {
         var previousCount = 0
         adapters.forEach { adapter ->
