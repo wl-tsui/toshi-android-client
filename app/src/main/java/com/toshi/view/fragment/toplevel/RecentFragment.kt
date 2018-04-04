@@ -32,7 +32,6 @@ import android.view.ViewGroup
 import com.toshi.R
 import com.toshi.extensions.getColorById
 import com.toshi.extensions.isEmpty
-import com.toshi.extensions.isVisible
 import com.toshi.extensions.startActivity
 import com.toshi.model.local.Conversation
 import com.toshi.model.local.ConversationInfo
@@ -49,9 +48,7 @@ import com.toshi.view.adapter.viewholder.ThreadViewHolder
 import com.toshi.view.fragment.DialogFragment.ConversationOptionsDialogFragment
 import com.toshi.viewModel.RecentViewModel
 import kotlinx.android.synthetic.main.fragment_recent.add
-import kotlinx.android.synthetic.main.fragment_recent.emptyState
 import kotlinx.android.synthetic.main.fragment_recent.recents
-import kotlinx.android.synthetic.main.fragment_recent.startChat
 
 class RecentFragment : TopLevelFragment() {
 
@@ -96,7 +93,6 @@ class RecentFragment : TopLevelFragment() {
     }
 
     private fun initClickListeners() {
-        startChat.setOnClickListener { startActivity<ConversationSetupActivity>() }
         add.setOnClickListener { startActivity<ConversationSetupActivity>() }
     }
 
@@ -196,32 +192,18 @@ class RecentFragment : TopLevelFragment() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
                 compoundAdapter.removeItemAtWithUndo(viewHolder.adapterPosition, recyclerView)
-                updateEmptyState()
             }
         })
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
     private fun updateViewState() {
-        updateEmptyState()
         updateConversationHeader()
     }
 
     private fun updateConversationHeader() {
         val acceptedConversationsExist = !conversationAdapter.isEmpty()
         conversationsHeaderAdapter.setVisibile(acceptedConversationsExist)
-    }
-
-    private fun updateEmptyState() {
-        val isAcceptedConversationsEmpty = conversationAdapter.isEmpty()
-        val areBothRequestsAndAcceptedChatsEmpty = isAcceptedConversationsEmpty && conversationRequestsAdapter.isEmpty()
-
-        val params = recents.layoutParams
-        params.height = if (isAcceptedConversationsEmpty) ViewGroup.LayoutParams.WRAP_CONTENT else ViewGroup.LayoutParams.MATCH_PARENT
-        recents.layoutParams = params
-
-        recents.isVisible(!areBothRequestsAndAcceptedChatsEmpty)
-        emptyState.isVisible(isAcceptedConversationsEmpty)
     }
 
     override fun onStart() {
