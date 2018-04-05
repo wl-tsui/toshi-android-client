@@ -103,7 +103,7 @@ class RecentFragment : TopLevelFragment() {
 
     private fun initCompoundAdapter() {
         val searchHeaderAdapter = SearchHeaderAdapter(
-                { startActivity<ConversationSetupActivity>()}
+                { startActivity<ConversationSetupActivity>() }
         )
         conversationRequestsAdapter = ConversationRequestsAdapter(
                 { startActivity<ConversationRequestActivity>() }

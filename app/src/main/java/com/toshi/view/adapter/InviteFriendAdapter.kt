@@ -25,7 +25,7 @@ import com.toshi.view.adapter.viewholder.InviteFriendViewHolder
 
 class InviteFriendAdapter(
         private val inviteFriendAction: () -> Unit
-): BaseCompoundableAdapter<InviteFriendViewHolder, Int>() {
+) : BaseCompoundableAdapter<InviteFriendViewHolder, Int>() {
 
     init {
         setItemList(listOf(1))

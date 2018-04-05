@@ -6,10 +6,9 @@ import android.view.ViewGroup
 import com.toshi.R
 import com.toshi.view.adapter.viewholder.SearchHeaderViewHolder
 
-
 class SearchHeaderAdapter(
         private val headerClickListener: () -> Unit
-): BaseCompoundableAdapter<SearchHeaderViewHolder, Int>() {
+) : BaseCompoundableAdapter<SearchHeaderViewHolder, Int>() {
 
     init {
         setItemList(listOf(1))
