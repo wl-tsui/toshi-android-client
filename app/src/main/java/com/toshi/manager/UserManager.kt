@@ -241,9 +241,7 @@ class UserManager(
 
     private fun getWallet(): Single<HDWallet> {
         return Single.fromCallable {
-            while (wallet == null) {
-                Thread.sleep(100)
-            }
+            while (!::wallet.isInitialized) Thread.sleep(100)
             wallet
         }
         .subscribeOn(Schedulers.io())
