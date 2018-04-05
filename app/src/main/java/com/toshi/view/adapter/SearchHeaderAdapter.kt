@@ -8,7 +8,7 @@ import com.toshi.view.adapter.viewholder.SearchHeaderViewHolder
 
 
 class SearchHeaderAdapter(
-        private val headerTappedListener: () -> Unit
+        private val headerClickListener: () -> Unit
 ): BaseCompoundableAdapter<SearchHeaderViewHolder, Int>() {
 
     init {
@@ -21,7 +21,7 @@ class SearchHeaderAdapter(
     }
 
     override fun onBindViewHolder(holder: SearchHeaderViewHolder, position: Int) {
-        holder.itemView.setOnClickListener { headerTappedListener() }
+        holder.itemView.setOnClickListener { headerClickListener() }
     }
 
     override fun compoundableBindViewHolder(viewHolder: RecyclerView.ViewHolder, adapterIndex: Int) {
