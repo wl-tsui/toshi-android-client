@@ -114,6 +114,9 @@ class UserManager(
     }
 
     private fun registerNewUserWithTimestamp(serverTime: ServerTime): Single<User> {
+        if (!::wallet.isInitialized) {
+            return Single.error(IllegalStateException("Wallet is null while registerNewUserWithTimestamp"))
+        }
         val userDetails = UserDetails().setPaymentAddress(wallet.paymentAddress)
         AppPrefs.setForceUserUpdate(false)
         return idService.registerUser(userDetails, serverTime.get())
