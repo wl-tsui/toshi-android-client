@@ -23,15 +23,12 @@ import com.toshi.manager.network.IdService
 import com.toshi.model.local.User
 import com.toshi.model.network.ServerTime
 import com.toshi.model.network.UserDetails
-import com.toshi.util.FileUtil
 import com.toshi.util.logging.LogUtil
 import com.toshi.util.sharedPrefs.AppPrefs
 import com.toshi.util.sharedPrefs.UserPrefs
 import com.toshi.util.sharedPrefs.UserPrefsInterface
+import com.toshi.util.uploader.FileUploader
 import com.toshi.view.BaseApplication
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import retrofit2.HttpException
 import rx.Completable
 import rx.Observable
@@ -48,13 +45,10 @@ class UserManager(
         private val recipientManager: RecipientManager = BaseApplication.get().recipientManager,
         private val isConnectedSubject: BehaviorSubject<Boolean> =  BaseApplication.get().isConnectedSubject,
         private val idService: IdInterface = IdService.getApi(),
+        private val fileUploader: FileUploader = FileUploader(idService),
         private val userPrefs: UserPrefsInterface = UserPrefs(),
         private val scheduler: Scheduler = Schedulers.io()
 ) {
-
-    companion object {
-        private const val FORM_DATA_NAME = "Profile-Image-Upload"
-    }
 
     private val subscriptions by lazy { CompositeSubscription() }
     private val userSubject by lazy { BehaviorSubject.create<User>() }
@@ -195,18 +189,11 @@ class UserManager(
     }
 
     fun uploadAvatar(file: File): Single<User> {
-        val mimeType = FileUtil.getMimeTypeFromFilename(file.name) ?: return Single.error(IllegalArgumentException("Unable to determine file type from file."))
-        val mediaType = MediaType.parse(mimeType)
-        val requestFile = RequestBody.create(mediaType, file)
-        val body = MultipartBody.Part.createFormData(FORM_DATA_NAME, file.name, requestFile)
-
-        return getTimestamp()
+        return fileUploader
+                .uploadAvatar(file)
                 .subscribeOn(scheduler)
-                .flatMap { uploadFile(body, it) }
                 .doOnSuccess { userSubject.onNext(it) }
     }
-
-    private fun uploadFile(body: MultipartBody.Part, time: ServerTime) = idService.uploadFile(body, time.get())
 
     private fun getTimestamp() = idService.timestamp
 
