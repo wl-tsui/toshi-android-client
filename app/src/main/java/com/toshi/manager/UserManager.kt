@@ -42,13 +42,14 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 class UserManager(
-        private val recipientManager: RecipientManager = BaseApplication.get().recipientManager,
-        private val isConnectedSubject: BehaviorSubject<Boolean> =  BaseApplication.get().isConnectedSubject,
         private val idService: IdInterface = IdService.getApi(),
         private val fileUploader: FileUploader = FileUploader(idService),
         private val userPrefs: UserPrefsInterface = UserPrefs(),
+        private val isConnectedSubject : BehaviorSubject<Boolean> = BaseApplication.get().isConnectedSubject,
         private val scheduler: Scheduler = Schedulers.io()
 ) {
+
+    private val recipientManager by lazy { BaseApplication.get().recipientManager }
 
     private val subscriptions by lazy { CompositeSubscription() }
     private val userSubject by lazy { BehaviorSubject.create<User>() }
