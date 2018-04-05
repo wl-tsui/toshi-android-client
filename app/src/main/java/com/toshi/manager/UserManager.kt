@@ -218,8 +218,9 @@ class UserManager(
         return userSubject
                 .first()
                 .toSingle()
+                .timeout(20, TimeUnit.SECONDS)
                 .doOnError { LogUtil.exception("getCurrentUser $it") }
-                .onErrorReturn(null)
+                .onErrorReturn { null }
     }
 
     private fun getWallet(): Single<HDWallet> {
