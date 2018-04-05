@@ -225,7 +225,7 @@ class UserManager(
 
     fun getUserObservable(): Observable<User> = userSubject.asObservable()
 
-    fun getCurrentUser(): Single<User> {
+    fun getCurrentUser(): Single<User?> {
         return userSubject
                 .first()
                 .toSingle()
