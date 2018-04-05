@@ -17,16 +17,16 @@
 
 package com.toshi.manager
 
-import android.content.Context
 import com.toshi.crypto.HDWallet
 import com.toshi.manager.network.IdService
 import com.toshi.model.local.User
 import com.toshi.model.network.ServerTime
 import com.toshi.model.network.UserDetails
-import com.toshi.util.FileNames
 import com.toshi.util.FileUtil
-import com.toshi.util.sharedPrefs.AppPrefs
 import com.toshi.util.logging.LogUtil
+import com.toshi.util.sharedPrefs.AppPrefs
+import com.toshi.util.sharedPrefs.UserPrefs
+import com.toshi.util.sharedPrefs.UserPrefsInterface
 import com.toshi.view.BaseApplication
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -42,12 +42,12 @@ import rx.subscriptions.CompositeSubscription
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-class UserManager {
+class UserManager(
+        private val userPrefs: UserPrefsInterface = UserPrefs()
+) {
 
     companion object {
         private const val FORM_DATA_NAME = "Profile-Image-Upload"
-        private const val OLD_USER_ID = "uid"
-        private const val USER_ID = "uid_v2"
     }
 
     private val recipientManager by lazy { BaseApplication.get().recipientManager }
@@ -55,7 +55,7 @@ class UserManager {
     private val subscriptions by lazy { CompositeSubscription() }
 
     private val userSubject by lazy { BehaviorSubject.create<User>() }
-    private val prefs by lazy { BaseApplication.get().getSharedPreferences(FileNames.USER_PREFS, Context.MODE_PRIVATE) }
+
     private var connectivitySub: Subscription? = null
     private lateinit var wallet: HDWallet
 
@@ -94,15 +94,15 @@ class UserManager {
     }
 
     private fun userNeedsToRegister(): Boolean {
-        val oldUserId = prefs.getString(OLD_USER_ID, null)
-        val newUserId = prefs.getString(USER_ID, null)
+        val oldUserId = userPrefs.getOldUserId()
+        val newUserId = userPrefs.getUserId()
         val expectedAddress = wallet.ownerAddress
         val userId = newUserId ?: oldUserId
         return userId == null || userId != expectedAddress
     }
 
     private fun userNeedsToMigrate(): Boolean {
-        val userId = prefs.getString(USER_ID, null)
+        val userId = userPrefs.getUserId()
         val expectedAddress = wallet.ownerAddress
         return userId == null || userId != expectedAddress
     }
@@ -165,9 +165,7 @@ class UserManager {
     }
 
     private fun updateCurrentUser(user: User) {
-        prefs.edit()
-                .putString(USER_ID, user.toshiId)
-                .apply()
+        userPrefs.setUserId(user.toshiId)
         userSubject.onNext(user)
         recipientManager.cacheUser(user)
     }
@@ -255,9 +253,7 @@ class UserManager {
     fun clear() {
         subscriptions.clear()
         clearConnectivitySubscription()
-        prefs.edit()
-                .putString(USER_ID, null)
-                .apply()
+        userPrefs.clear()
         userSubject.onNext(null)
     }
 
