@@ -52,7 +52,7 @@
     <string name="error__message_pending">Pending</string>
     <string name="version">Version</string>
     <string name="search_or_type_the_url">Search or type the url</string>
-    <string name="tab_recent">Chats</string>
+    <string name="tab_chats">Chats</string>
     <string name="send_amount">%1$s %2$s</string>
     <string name="button_send_amount">%1$s</string>
     <string name="to">To:</string>
