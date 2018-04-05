@@ -45,11 +45,11 @@ class UserManager(
         private val idService: IdInterface = IdService.getApi(),
         private val fileUploader: FileUploader = FileUploader(idService),
         private val userPrefs: UserPrefsInterface = UserPrefs(),
-        private val isConnectedSubject : BehaviorSubject<Boolean> = BaseApplication.get().isConnectedSubject,
         private val scheduler: Scheduler = Schedulers.io()
 ) {
 
     private val recipientManager by lazy { BaseApplication.get().recipientManager }
+    private val isConnectedSubject by lazy {  BaseApplication.get().isConnectedSubject }
 
     private val subscriptions by lazy { CompositeSubscription() }
     private val userSubject by lazy { BehaviorSubject.create<User>() }
@@ -181,7 +181,7 @@ class UserManager(
 
     fun updateUser(userDetails: UserDetails): Single<User> {
         return getTimestamp()
-                .flatMap { serverTime -> updateUserWithTimestamp(userDetails, serverTime) }
+                .flatMap { updateUserWithTimestamp(userDetails, it) }
                 .subscribeOn(scheduler)
     }
 
@@ -209,9 +209,7 @@ class UserManager(
 
     private fun webLoginWithTimestamp(loginToken: String, serverTime: ServerTime?): Completable {
         if (serverTime == null) throw IllegalStateException("ServerTime was null")
-        return idService
-                .webLogin(loginToken, serverTime.get())
-                .toCompletable()
+        return idService.webLogin(loginToken, serverTime.get())
     }
 
     fun getUserObservable(): Observable<User> = userSubject.asObservable()
