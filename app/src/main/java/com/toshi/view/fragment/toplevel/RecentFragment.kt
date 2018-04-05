@@ -37,7 +37,6 @@ import com.toshi.extensions.startExternalActivity
 import com.toshi.model.local.Conversation
 import com.toshi.model.local.ConversationInfo
 import com.toshi.view.activity.ChatActivity
-import com.toshi.view.activity.ContactSearchActivity
 import com.toshi.view.activity.ConversationRequestActivity
 import com.toshi.view.activity.ConversationSetupActivity
 import com.toshi.view.adapter.CompoundAdapter
@@ -104,7 +103,7 @@ class RecentFragment : TopLevelFragment() {
 
     private fun initCompoundAdapter() {
         val searchHeaderAdapter = SearchHeaderAdapter(
-                { startActivity<ContactSearchActivity>()}
+                { startActivity<ConversationSetupActivity>()}
         )
         conversationRequestsAdapter = ConversationRequestsAdapter(
                 { startActivity<ConversationRequestActivity>() }
