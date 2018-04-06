@@ -37,38 +37,33 @@ import rx.subjects.BehaviorSubject
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class ToshiManager {
+class ToshiManager(
+        val balanceManager: BalanceManager = BalanceManager(),
+        val sofaMessageManager: SofaMessageManager = SofaMessageManager(),
+        val transactionManager: TransactionManager = TransactionManager(),
+        val userManager: UserManager = UserManager(),
+        val recipientManager: RecipientManager = RecipientManager(),
+        val reputationManager: ReputationManager =  ReputationManager(),
+        val dappManager: DappManager = DappManager(),
+        private val singleExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+) {
 
     companion object {
         const val CACHE_TIMEOUT = (1000 * 60 * 5).toLong()
     }
 
-    private var areManagersInitialised = false
     private val walletSubject = BehaviorSubject.create<HDWallet>()
-    private val singleExecutor: ExecutorService
 
+    private var areManagersInitialised = false
     private var realmConfig: RealmConfiguration? = null
     private var wallet: HDWallet? = null
 
-    val balanceManager: BalanceManager
-    val sofaMessageManager: SofaMessageManager
-    val transactionManager: TransactionManager
-    val userManager: UserManager
-    val recipientManager: RecipientManager
-    val reputationManager: ReputationManager
-    val dappManager: DappManager
-
     init {
-        singleExecutor = Executors.newSingleThreadExecutor()
-        balanceManager = BalanceManager()
-        userManager = UserManager()
-        reputationManager = ReputationManager()
-        sofaMessageManager = SofaMessageManager()
-        transactionManager = TransactionManager()
-        recipientManager = RecipientManager()
-        dappManager = DappManager()
         walletSubject.onNext(null)
+        tryEarlyInit()
+    }
 
+    private fun tryEarlyInit() {
         tryInit()
                 .subscribe(
                         { },
