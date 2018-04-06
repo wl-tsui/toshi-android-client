@@ -36,6 +36,7 @@ import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class ToshiManager(
         val balanceManager: BalanceManager = BalanceManager(),
@@ -173,10 +174,11 @@ class ToshiManager(
     fun getWallet(): Single<HDWallet> {
         return walletSubject
                 .filter { wallet != null }
-                .doOnError { LogUtil.exception("Wallet is null", it) }
-                .onErrorReturn { null }
                 .first()
                 .toSingle()
+                .timeout(30, TimeUnit.SECONDS)
+                .doOnError { LogUtil.exception("Wallet is null", it) }
+                .onErrorReturn { null }
     }
 
     fun signOut() {
