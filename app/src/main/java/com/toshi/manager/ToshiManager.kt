@@ -168,7 +168,10 @@ class ToshiManager(
                 .name(wallet.ownerAddress)
                 .encryptionKey(key)
                 .build()
-        Realm.setDefaultConfiguration(realmConfig)
+
+        realmConfig?.let {
+            Realm.setDefaultConfiguration(it)
+        } ?: throw IllegalStateException("realmConfig is null when initRealm")
     }
 
     fun getWallet(): Single<HDWallet> {
