@@ -19,7 +19,6 @@ package com.toshi.manager
 
 
 import android.widget.Toast
-
 import com.toshi.R
 import com.toshi.crypto.HDWallet
 import com.toshi.crypto.signal.SignalPreferences
@@ -28,10 +27,6 @@ import com.toshi.util.ImageUtil
 import com.toshi.util.logging.LogUtil
 import com.toshi.util.sharedPrefs.AppPrefs
 import com.toshi.view.BaseApplication
-
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import rx.Completable
@@ -39,6 +34,8 @@ import rx.Single
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class ToshiManager {
 
@@ -46,9 +43,10 @@ class ToshiManager {
         const val CACHE_TIMEOUT = (1000 * 60 * 5).toLong()
     }
 
+    private var areManagersInitialised = false
     private val walletSubject = BehaviorSubject.create<HDWallet>()
     private val singleExecutor: ExecutorService
-    private var areManagersInitialised = false
+
     private var realmConfig: RealmConfiguration? = null
     private var wallet: HDWallet? = null
 
@@ -74,7 +72,12 @@ class ToshiManager {
         tryInit()
                 .subscribe(
                         { },
-                        { LogUtil.i("Early init failed. $it") }
+                        { handleInitException(it) }
+                )
+    }
+
+    private fun handleInitException(throwable: Throwable) {
+        LogUtil.exception("Early init failed.", throwable)
     }
 
     val realm: Single<Realm>
@@ -98,7 +101,7 @@ class ToshiManager {
                 .createWallet()
                 .doOnSuccess { setWallet(it) }
                 .doOnSuccess { AppPrefs.setHasOnboarded(false) }
-                .flatMapCompletable { initManagers() }
+                .flatMapCompletable { initManagers(wallet) }
                 .doOnError { signOut() }
                 .doOnError { LogUtil.exception("Error while initiating new wallet", it) }
                 .subscribeOn(Schedulers.from(singleExecutor))
@@ -107,7 +110,7 @@ class ToshiManager {
 
     fun init(wallet: HDWallet): Completable {
         setWallet(wallet)
-        return initManagers()
+        return initManagers(wallet)
                 .doOnError { signOut() }
                 .doOnError { LogUtil.exception("Error while initiating wallet", it) }
                 .subscribeOn(Schedulers.from(singleExecutor))
@@ -120,7 +123,7 @@ class ToshiManager {
                 .existingWallet
                 .doOnSuccess { setWallet(it) }
                 .doOnError { clearUserSession() }
-                .flatMapCompletable { initManagers() }
+                .flatMapCompletable { initManagers(wallet) }
                 .doOnError { LogUtil.exception("Error while trying to init wallet", it) }
                 .subscribeOn(Schedulers.from(singleExecutor))
     }
@@ -130,10 +133,12 @@ class ToshiManager {
         walletSubject.onNext(wallet)
     }
 
-    private fun initManagers(): Completable {
+    private fun initManagers(wallet: HDWallet?): Completable {
+        if (wallet == null) throw IllegalStateException("Wallet is null when initManagers")
+
         return if (areManagersInitialised) Completable.complete()
         else Completable.fromAction {
-            initRealm()
+            initRealm(wallet)
             transactionManager.init(wallet)
         }
         .onErrorComplete()
@@ -156,7 +161,7 @@ class ToshiManager {
         ).show()
     }
 
-    private fun initRealm() {
+    private fun initRealm(wallet: HDWallet) {
         if (realmConfig != null) return
 
         val key = wallet.generateDatabaseEncryptionKey()
@@ -187,7 +192,7 @@ class ToshiManager {
     }
 
     private fun clearWalletAndSignal() {
-        wallet.clear()
+        wallet?.clear()
         SignalPreferences.clear()
     }
 
