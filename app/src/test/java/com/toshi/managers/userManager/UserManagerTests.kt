@@ -41,7 +41,7 @@ class UserManagerTests {
     @Before
     fun before() {
         userPrefs = TestUserPrefs()
-        userManager= UserManager(
+        userManager = UserManager(
                 idService = mockIdApi(),
                 userPrefs = userPrefs,
                 scheduler = Schedulers.trampoline()

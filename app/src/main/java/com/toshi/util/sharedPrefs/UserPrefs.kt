@@ -34,7 +34,7 @@ class UserPrefs : UserPrefsInterface {
 
     override fun getOldUserId(): String? = prefs.getString(OLD_USER_ID, null)
 
-    override fun getUserId(): String? =  prefs.getString(USER_ID, null)
+    override fun getUserId(): String? = prefs.getString(USER_ID, null)
 
     override fun setUserId(userId: String) = prefs.edit().putString(USER_ID, userId).apply()
 

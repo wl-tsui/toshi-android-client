@@ -49,7 +49,7 @@ class UserManager(
 ) {
 
     private val recipientManager by lazy { BaseApplication.get().recipientManager }
-    private val isConnectedSubject by lazy {  BaseApplication.get().isConnectedSubject }
+    private val isConnectedSubject by lazy { BaseApplication.get().isConnectedSubject }
 
     private val subscriptions by lazy { CompositeSubscription() }
     private val userSubject by lazy { BehaviorSubject.create<User>() }
