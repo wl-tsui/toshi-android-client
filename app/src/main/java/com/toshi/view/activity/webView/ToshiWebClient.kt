@@ -176,7 +176,7 @@ class ToshiWebClient(
         return "<script type=\"text/javascript\">$sb</script>"
     }
 
-    private fun getWallet() = toshiManager.wallet.toBlocking().value()
+    private fun getWallet() = toshiManager.getWallet().toBlocking().value()
 
     private fun injectScripts(body: String?, script: String): String {
         val safeBody = body ?: ""
